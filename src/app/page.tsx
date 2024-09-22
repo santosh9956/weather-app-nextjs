@@ -23,7 +23,7 @@ const Home = () => {
     try {
       // Fetch current weather data
       const currentResponse = await fetch(
-        `https://api.weatherapi.com/v1/current.json??key=${apiKey}&q=${city}`
+        `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${city}`
       );
       if (!currentResponse.ok) {
         const errorData = await currentResponse.json();
