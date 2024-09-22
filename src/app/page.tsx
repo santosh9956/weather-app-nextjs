@@ -1,17 +1,20 @@
-// app/page.tsx
 "use client";
-
 import React, { useState, useEffect } from "react";
 import CitySearch from "../components/CitySearch";
 import CurrentWeather from "../components/CurrentWeather";
 import ForecastCard from "../components/ForecastCard";
 import TemperatureToggle from "../components/TemperatureToggle";
+import { Data, WeatherForecast } from "@/types/Home";
+import { weatherInitialState } from "@/initialData/home";
 
 const Home = () => {
   const [city, setCity] = useState<string>("New York");
-  const [weatherData, setWeatherData] = useState<any>(null); // Define a more specific type based on your data
+  const [weatherData, setWeatherData] = useState<Data>(weatherInitialState);
   const [unit, setUnit] = useState<string>("metric");
-  const [forecast, setForecast] = useState<any[]>([]);
+  const [forecast, setForecast] = useState<WeatherForecast>({
+    forecastday: [],
+  });
+
   const [error, setError] = useState<string | null>(null);
 
   const fetchWeatherData = async () => {
@@ -20,7 +23,7 @@ const Home = () => {
     try {
       // Fetch current weather data
       const currentResponse = await fetch(
-        `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${city}`
+        `https://api.weatherapi.com/v1/current.json??key=${apiKey}&q=${city}`
       );
       if (!currentResponse.ok) {
         const errorData = await currentResponse.json();
@@ -29,7 +32,6 @@ const Home = () => {
       const currentData = await currentResponse.json();
       setWeatherData(currentData);
 
-      // Fetch forecast data
       const forecastResponse = await fetch(
         `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${city}&days=5`
       );
@@ -38,11 +40,15 @@ const Home = () => {
         throw new Error(errorData.error.message);
       }
       const forecastData = await forecastResponse.json();
-      setForecast(forecastData.forecast.forecastday);
-
+      setForecast(forecastData.forecast);
       setError(null);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        console.log(err, "Unexpected error format");
+        setError("An unexpected error occurred.");
+      }
     }
   };
 
@@ -60,9 +66,10 @@ const Home = () => {
           <CurrentWeather data={weatherData} unit={unit} />
           <TemperatureToggle unit={unit} setUnit={setUnit} />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {forecast.map((day, index) => (
-              <ForecastCard unit={unit} key={index} day={day} />
-            ))}
+            {forecast?.forecastday?.length > 0 &&
+              forecast?.forecastday.map((day, index) => (
+                <ForecastCard unit={unit} key={index} day={day} />
+              ))}
           </div>
         </>
       )}

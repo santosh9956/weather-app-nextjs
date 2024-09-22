@@ -1,31 +1,5 @@
-// components/CurrentWeather.tsx
+import { Data } from "@/types/Home";
 import React from "react";
-
-interface CurrentObj {
-  temp_f: number;
-  temp_c: number;
-  condition: {
-    code: number;
-    icon: string;
-    text: string;
-  };
-}
-
-interface LocationObj {
-  country: string;
-  lat: number;
-  localtime: Date;
-  localtime_epoch: number;
-  lon: number;
-  name: string;
-  region: string;
-  tz_id: string;
-}
-
-interface Data {
-  current: CurrentObj;
-  location: LocationObj;
-}
 
 interface CurrentWeatherProps {
   data: Data;
